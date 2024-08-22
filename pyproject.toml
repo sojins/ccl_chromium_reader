@@ -17,7 +17,7 @@ authors = [
 ]
 description = "(Sometimes partial) Python re-implementations of the technologies involved in reading various data sources in Chrome-esque applications."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
