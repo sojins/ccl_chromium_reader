@@ -27,7 +27,6 @@ classifiers = [
 keywords = ["digital forensics", "dfir", "chrome", "chromium", "browser"]
 dependencies = [
     "Brotli",
-    "ccl_simplesnappy @ git+https://github.com/cclgroupltd/ccl_simplesnappy.git"
 ]
 
 [project.urls]
