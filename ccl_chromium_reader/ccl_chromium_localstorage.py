@@ -218,13 +218,13 @@ class LocalStoreDb:
 
         self._batch_starts = tuple(sorted(self._batches.keys()))
 
-    def iter_storage_keys(self) -> col_abc.Iterable[str]:
+    def iter_storage_keys(self): # -> col_abc.Iterable[str]:
         yield from self._storage_details.keys()
 
     def contains_storage_key(self, storage_key: str) -> bool:
         return storage_key in self._all_storage_keys
 
-    def iter_script_keys(self, storage_key: str) -> col_abc.Iterable[str]:
+    def iter_script_keys(self, storage_key: str): # -> col_abc.Iterable[str]:
         if storage_key not in self._all_storage_keys:
             raise KeyError(storage_key)
         if storage_key not in self._records:
@@ -251,7 +251,7 @@ class LocalStoreDb:
         else:
             return None
 
-    def iter_all_records(self, include_deletions=False) -> col_abc.Iterable[LocalStorageRecord]:
+    def iter_all_records(self, include_deletions=False): # -> col_abc.Iterable[LocalStorageRecord]:
         """
         :param include_deletions: if True, records related to deletions will be included
         (these will have None as values).
@@ -264,7 +264,7 @@ class LocalStoreDb:
                         yield value
 
     def _iter_records_for_storage_key(
-            self, storage_key: str, include_deletions=False) -> col_abc.Iterable[LocalStorageRecord]:
+            self, storage_key: str, include_deletions=False): # -> col_abc.Iterable[LocalStorageRecord]:
         """
         :param storage_key: storage key (host) for the records
         :param include_deletions: if True, records related to deletions will be included
@@ -278,7 +278,7 @@ class LocalStoreDb:
                 if value.is_live or include_deletions:
                     yield value
 
-    def _search_storage_keys(self, storage_key: KeySearch) -> list[str]:
+    def _search_storage_keys(self, storage_key: KeySearch): # -> list[str]:
         if isinstance(storage_key, str):
             return [storage_key]
         elif isinstance(storage_key, re.Pattern):
@@ -292,7 +292,7 @@ class LocalStoreDb:
 
     def iter_records_for_storage_key(
             self, storage_key: KeySearch, *,
-            include_deletions=False, raise_on_no_result=True) -> col_abc.Iterable[LocalStorageRecord]:
+            include_deletions=False, raise_on_no_result=True): # -> col_abc.Iterable[LocalStorageRecord]:
         """
         :param storage_key: storage key (host) for the records. This can be one of: a single string;
         a collection of strings; a regex pattern; a function that takes a string (the host) and returns a bool.
@@ -327,7 +327,7 @@ class LocalStoreDb:
             raise TypeError(f"Unexpected type for storage key: {type(storage_key)} (expects: {KeySearch})")
 
     def _iter_records_for_script_key(
-            self, storage_key: str, script_key: str, include_deletions=False) -> col_abc.Iterable[LocalStorageRecord]:
+            self, storage_key: str, script_key: str, include_deletions=False) : # -> col_abc.Iterable[LocalStorageRecord]:
         """
         :param storage_key: storage key (host) for the records
         :param script_key: script defined key for the records
@@ -342,7 +342,7 @@ class LocalStoreDb:
 
     def iter_records_for_script_key(
         self, storage_key: KeySearch, script_key: KeySearch, *,
-            include_deletions=False, raise_on_no_result=True) -> col_abc.Iterable[LocalStorageRecord]:
+            include_deletions=False, raise_on_no_result=True): # -> col_abc.Iterable[LocalStorageRecord]:
         """
         :param storage_key: storage key (host) for the records. This can be one of: a single string;
         a collection of strings; a regex pattern; a function that takes a string and returns a bool.
@@ -386,7 +386,7 @@ class LocalStoreDb:
             if not yielded:
                 raise KeyError((storage_key, script_key))
 
-    def iter_metadata(self) -> col_abc.Iterable[StorageMetadata]:
+    def iter_metadata(self): # -> col_abc.Iterable[StorageMetadata]:
         """
         :return: iterable of StorageMetaData
         """
@@ -394,7 +394,7 @@ class LocalStoreDb:
             if isinstance(meta, StorageMetadata):
                 yield meta
 
-    def iter_metadata_for_storage_key(self, storage_key: str) -> col_abc.Iterable[StorageMetadata]:
+    def iter_metadata_for_storage_key(self, storage_key: str) : # -> col_abc.Iterable[StorageMetadata]:
         """
         :param storage_key: storage key (host) for the metadata
         :return: iterable of StorageMetadata
@@ -406,13 +406,14 @@ class LocalStoreDb:
         for seq, meta in self._storage_details[storage_key].items():
             yield meta
 
-    def iter_batches(self) -> col_abc.Iterable[LocalStorageBatch]:
+    def iter_batches(self) : # -> col_abc.Iterable[LocalStorageBatch]:
         yield from self._batches.values()
 
     def close(self):
         self._ldb.close()
 
-    def __contains__(self, item: typing.Union[str, tuple[str, str]]) -> bool:
+    # def __contains__(self, item: typing.Union[str, tuple[str, str]]): # -> bool:
+    def __contains__(self, item: typing.Union[str]): # -> bool:
         """
         :param item: either the host as a str or a tuple of the host and a key (both str)
         :return: if item is a str, returns true if that host is present, if item is a tuple of (str, str), returns True
@@ -433,7 +434,7 @@ class LocalStoreDb:
         """
         yield from self._all_storage_keys
 
-    def __enter__(self) -> "LocalStoreDb":
+    def __enter__(self): # -> "LocalStoreDb":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

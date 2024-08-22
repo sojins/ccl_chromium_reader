@@ -45,7 +45,7 @@ EIGHT_BYTE_PICKLE_ALIGNMENT = True  # switch this if you get errors about the EO
 SIMPLE_EOF_SIZE = 24 if EIGHT_BYTE_PICKLE_ALIGNMENT else 20
 
 
-def decode_chrome_time(us: int) -> datetime.datetime:
+def decode_chrome_time(us: int): # -> datetime.datetime:
     return _CHROME_EPOCH + datetime.timedelta(microseconds=us)
 
 
@@ -65,19 +65,19 @@ class BinaryReader:
         self._stream.close()
         self._closed = True
 
-    def __enter__(self) -> "BinaryReader":
+    def __enter__(self): # -> "BinaryReader":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def tell(self) -> int:
+    def tell(self): # -> int:
         return self._stream.tell()
 
-    def seek(self, offset: int, whence: int) -> int:
+    def seek(self, offset: int, whence: int): # -> int:
         return self._stream.seek(offset, whence)
 
-    def read_raw(self, count: int) -> bytes:
+    def read_raw(self, count: int): # -> bytes:
         start_offset = self._stream.tell()
         result = self._stream.read(count)
         if len(result) != count:
@@ -85,41 +85,41 @@ class BinaryReader:
                 f"Could not read all of the data starting at {start_offset}. Expected: {count}; got {len(result)}")
         return result
 
-    def read_utf8(self, count: int) -> str:
+    def read_utf8(self, count: int): # -> str:
         return self.read_raw(count).decode("utf-8")
 
-    def read_int16(self) -> int:
+    def read_int16(self): # -> int:
         raw = self.read_raw(2)
         return struct.unpack("<h", raw)[0]
 
-    def read_int32(self) -> int:
+    def read_int32(self): # -> int:
         raw = self.read_raw(4)
         return struct.unpack("<i", raw)[0]
 
-    def read_int64(self) -> int:
+    def read_int64(self): # -> int:
         raw = self.read_raw(8)
         return struct.unpack("<q", raw)[0]
 
-    def read_uint16(self) -> int:
+    def read_uint16(self): # -> int:
         raw = self.read_raw(2)
         return struct.unpack("<H", raw)[0]
 
-    def read_uint32(self) -> int:
+    def read_uint32(self): # -> int:
         raw = self.read_raw(4)
         return struct.unpack("<I", raw)[0]
 
-    def read_uint64(self) -> int:
+    def read_uint64(self): # -> int:
         raw = self.read_raw(8)
         return struct.unpack("<Q", raw)[0]
 
-    def read_addr(self) -> "Addr":
+    def read_addr(self): # -> "Addr":
         return Addr.from_int(self.read_uint32())
 
-    def read_datetime(self) -> datetime.datetime:
+    def read_datetime(self): # -> datetime.datetime:
         return decode_chrome_time(self.read_uint64())
 
     @property
-    def is_closed(self) -> bool:
+    def is_closed(self): # -> bool:
         return self._closed
 
 
@@ -191,23 +191,23 @@ class CacheKey:
             self._isolation_key_variable_part = None
 
     @property
-    def raw_key(self) -> str:
+    def raw_key(self): # -> str:
         return self._raw_key
 
     @property
-    def url(self) -> str:
+    def url(self): # -> str:
         return self._url
 
     @property
-    def credential_key(self) -> str:
+    def credential_key(self): # -> str:
         return self._credential_key
 
     @property
-    def upload_data_identifier(self) -> int:
+    def upload_data_identifier(self): # -> int:
         return self._upload_data_identifier
 
     @property
-    def isolation_key_top_frame_site(self) -> str:
+    def isolation_key_top_frame_site(self): # -> str:
         return self._isolation_key_top_frame_site
 
     @property
@@ -260,27 +260,27 @@ class Addr:
         return Addr(is_initialized, file_type, file_number, contiguous_blocks , file_selector, block_number)
 
     @property
-    def is_initialized(self) -> bool:
+    def is_initialized(self): # -> bool:
         return self._is_initialized
 
     @property
-    def file_type(self) -> FileType:
+    def file_type(self): # -> FileType:
         return self._file_type
 
     @property
-    def contiguous_blocks(self) -> int:
+    def contiguous_blocks(self): # -> int:
         return self._contiguous_blocks
 
     @property
-    def file_selector(self) -> int:
+    def file_selector(self): # -> int:
         return self._file_selector
 
     @property
-    def block_number(self) -> int:
+    def block_number(self): # -> int:
         return self._block_number
 
     @property
-    def external_file_number(self) -> int:
+    def external_file_number(self): # -> int:
         return self._file_number
 
 
@@ -376,11 +376,11 @@ class BlockFileIndexFile:
         return self._input_path
 
     @property
-    def header(self) -> BlockFileIndexHeader:
+    def header(self): # -> BlockFileIndexHeader:
         return self._header
 
     @property
-    def index(self) -> typing.Collection[Addr]:
+    def index(self): # -> typing.Collection[Addr]:
         return self._entries
 
     @property
@@ -411,14 +411,14 @@ class EntryStore:
     creation_time: datetime.datetime
     key_length: int
     long_key_addr: Addr
-    data_sizes: tuple[int, int, int, int]
-    data_addrs: tuple[Addr, Addr, Addr, Addr]
+    data_sizes: tuple #tuple[int, int, int, int]
+    data_addrs: tuple #tuple[Addr, Addr, Addr, Addr]
     flags: EntryFlags
     self_hash: int
     key: typing.Optional[str]
 
     @property
-    def key_is_external(self) -> bool:
+    def key_is_external(self): # -> bool:
         return self.long_key_addr.is_initialized
 
     @classmethod
@@ -466,10 +466,10 @@ class BlockFileHeader:
     entry_size: int
     num_entries: int
     max_entries: int
-    empty_type_counts: tuple[int, int, int, int]
-    hints: tuple[int, int, int, int]
+    empty_type_counts: tuple #[int, int, int, int]
+    hints: tuple #[int, int, int, int]
     updating: int
-    user: tuple[int, int, int, int, int]
+    user: tuple #[int, int, int, int, int]
     allocation_map: bytes
 
     _MAGIC: typing.ClassVar[int] = 0xC104CAC3
@@ -543,9 +543,10 @@ class CachedMetadataFlags(enum.IntFlag):
 class CachedMetadata:
     # net/http/http_response_info.cc / net/http/http_response_info.h
     def __init__(
-            self, header_declarations: set[str], header_attributes: dict[str, list[str]],
-            request_time: datetime.datetime, response_time: datetime.datetime, certs: list[bytes],
-            host_address: str, hot_port: int, other_attributes: dict[str, typing.Any]):
+            self, header_declarations: set, #[str], 
+            header_attributes: dict, #[str, list[str]],
+            request_time: datetime.datetime, response_time: datetime.datetime, certs: list, #[bytes],
+            host_address: str, hot_port: int, other_attributes: dict): #[str, typing.Any]):
         self._declarations = header_declarations.copy()
         self._attributes = types.MappingProxyType(header_attributes.copy())
         self._request_time = request_time
@@ -556,31 +557,31 @@ class CachedMetadata:
         self._host_port = hot_port
 
     @property
-    def certs(self) -> typing.Iterable[bytes]:
+    def certs(self): # -> typing.Iterable[bytes]:
         yield from self._certs
 
     @property
-    def http_header_declarations(self) -> typing.Iterable[str]:
+    def http_header_declarations(self): # -> typing.Iterable[str]:
         yield from self._declarations
 
     @property
-    def request_time(self) -> datetime.datetime:
+    def request_time(self): # -> datetime.datetime:
         return self._request_time
 
     @property
-    def response_time(self) -> datetime.datetime:
+    def response_time(self): # -> datetime.datetime:
         return self._response_time
 
     @property
-    def http_header_attributes(self) -> typing.Iterable[tuple[str, str]]:
+    def http_header_attributes(self): # -> typing.Iterable[tuple[str, str]]:
         for key, vals in self._attributes.items():
             for val in vals:
                 yield key, val
 
-    def has_declaration(self, declaration: str) -> bool:
+    def has_declaration(self, declaration: str): # -> bool:
         return declaration in self._declarations
 
-    def get_attribute(self, attribute: str) -> list[str]:
+    def get_attribute(self, attribute: str): # -> list[str]:
         return self._attributes.get(attribute.lower()) or []
 
     @property
@@ -711,7 +712,7 @@ class ChromiumCache(abc.ABC):
     """
     Abstract base class that both forms of concrete cache types inherit from
     """
-    def get_metadata(self, key: typing.Union[str, CacheKey]) -> list[typing.Optional[CachedMetadata]]:  # typing.Optional[CachedMetadata]:
+    def get_metadata(self, key: typing.Union[str, CacheKey]): # -> list[typing.Optional[CachedMetadata]]:  # typing.Optional[CachedMetadata]:
         """
         :param key: the cache key for the entry
         :return: a list of CachedMetadata objects for this key. Most often this list will contain only one entry but
@@ -720,7 +721,7 @@ class ChromiumCache(abc.ABC):
         """
         raise NotImplementedError()
 
-    def get_cachefile(self, key: typing.Union[str, CacheKey]) -> list[bytes]:  # typing.Optional[bytes]:
+    def get_cachefile(self, key: typing.Union[str, CacheKey]): # -> list[bytes]:  # typing.Optional[bytes]:
         """
         :param key: the cache key for the entry
         :return: a list of bytes objects for this key containing the cached resource. Most often this list will contain
@@ -729,7 +730,7 @@ class ChromiumCache(abc.ABC):
         """
         raise NotImplementedError()
 
-    def get_location_for_metadata(self, key: typing.Union[str, CacheKey]) -> list[CacheFileLocation]:
+    def get_location_for_metadata(self, key: typing.Union[str, CacheKey]): # -> list[CacheFileLocation]:
         """
         :param key: the cache key for the entry
         :return: a list of CacheFileLocation objects for this key's metadata. Most often this list will contain only one
@@ -738,7 +739,7 @@ class ChromiumCache(abc.ABC):
         """
         raise NotImplementedError()
 
-    def get_location_for_cachefile(self, key: typing.Union[str, CacheKey]) -> list[CacheFileLocation]:
+    def get_location_for_cachefile(self, key: typing.Union[str, CacheKey]): # -> list[CacheFileLocation]:
         """
         :param key: the cache key for the entry
         :return: a list of CacheFileLocation objects for this key's data. Most often this list will contain only one
@@ -747,19 +748,19 @@ class ChromiumCache(abc.ABC):
         """
         raise NotImplementedError()
 
-    def __enter__(self) -> "ChromiumCache":
+    def __enter__(self): # -> "ChromiumCache":
         raise NotImplementedError()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         raise NotImplementedError()
 
-    def keys(self) -> typing.Iterable[str]:
+    def keys(self): # -> typing.Iterable[str]:
         """
         :return: yields the cache keys for this cache instance
         """
         raise NotImplementedError()
 
-    def cache_keys(self) -> typing.Iterable[CacheKey]:
+    def cache_keys(self): # -> typing.Iterable[CacheKey]:
         """
         :return: yields the cache keys (as CacheKey objects) for this cache instance
         """
@@ -773,7 +774,7 @@ class ChromiumBlockFileCache(ChromiumCache):
         self._block_files: dict[int, tuple[BlockFileHeader, typing.BinaryIO]] = {}
         self._keys = self._build_keys()
 
-    def _get_block_file(self, block_file_number: int) -> tuple[BlockFileHeader, typing.BinaryIO]:
+    def _get_block_file(self, block_file_number: int): # -> tuple[BlockFileHeader, typing.BinaryIO]:
         if cached := self._block_files.get(block_file_number):
             return cached
 
@@ -812,17 +813,17 @@ class ChromiumBlockFileCache(ChromiumCache):
 
         raise ValueError("unexpected file type")
 
-    def get_location_for_metadata(self, key: typing.Union[str, CacheKey]) -> list[CacheFileLocation]:
+    def get_location_for_metadata(self, key: typing.Union[str, CacheKey]): # -> list[CacheFileLocation]:
         if isinstance(key, CacheKey):
             key = key.raw_key
         return [self._get_location(key, 0)]
 
-    def get_location_for_cachefile(self, key: typing.Union[str, CacheKey]) -> list[CacheFileLocation]:
+    def get_location_for_cachefile(self, key: typing.Union[str, CacheKey]): # -> list[CacheFileLocation]:
         if isinstance(key, CacheKey):
             key = key.raw_key
         return [self._get_location(key, 1)]
 
-    def get_stream_for_addr(self, addr: Addr) -> typing.BinaryIO:
+    def get_stream_for_addr(self, addr: Addr): # -> typing.BinaryIO:
         if not addr.is_initialized:
             raise ValueError("Addr is not initialized")
         if addr.file_type in _BLOCK_FILE_FILETYPE:
@@ -834,7 +835,7 @@ class ChromiumBlockFileCache(ChromiumCache):
 
         raise ValueError("unexpected file type")
 
-    def get_data_for_addr(self, addr: Addr) -> bytes:
+    def get_data_for_addr(self, addr: Addr): # -> bytes:
         if not addr.is_initialized:
             raise ValueError("Addr is not initialized")
         if addr.file_type in _BLOCK_FILE_FILETYPE:
@@ -847,7 +848,7 @@ class ChromiumBlockFileCache(ChromiumCache):
 
         raise ValueError("unexpected file type")
 
-    def get_data_buffer(self, key: typing.Union[str, EntryStore, CacheKey], stream_number: int) -> typing.Optional[bytes]:
+    def get_data_buffer(self, key: typing.Union[str, EntryStore, CacheKey], stream_number: int): # -> typing.Optional[bytes]:
         if stream_number < 0 or stream_number > 2:
             raise ValueError("invalid stream number")
         if isinstance(key, EntryStore):
@@ -869,41 +870,41 @@ class ChromiumBlockFileCache(ChromiumCache):
         data = data[0:stream_length]
         return data
 
-    def get_metadata(self, key: typing.Union[str, EntryStore, CacheKey]) -> list[typing.Optional[CachedMetadata]]:
+    def get_metadata(self, key: typing.Union[str, EntryStore, CacheKey]): # -> list[typing.Optional[CachedMetadata]]:
         buffer = self.get_data_buffer(key, 0)
         if not buffer:
             return [None]
         meta = CachedMetadata.from_buffer(buffer)
         return [meta]
 
-    def get_cachefile(self, key: typing.Union[str, EntryStore, CacheKey]) -> list[bytes]:
+    def get_cachefile(self, key: typing.Union[str, EntryStore, CacheKey]): # -> list[bytes]:
         return [self.get_data_buffer(key, 1)]
 
-    def __enter__(self) -> "ChromiumBlockFileCache":
+    def __enter__(self): # -> "ChromiumBlockFileCache":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def keys(self) -> typing.Iterable[str]:
+    def keys(self): # -> typing.Iterable[str]:
         yield from self._keys.keys()
 
-    def cache_keys(self) -> typing.Iterable[CacheKey]:
+    def cache_keys(self): # -> typing.Iterable[CacheKey]:
         for k in self._keys.keys():
             yield CacheKey(k)
 
-    def values(self) -> typing.Iterable[EntryStore]:
+    def values(self): # -> typing.Iterable[EntryStore]:
         yield from self._keys.values()
 
-    def items(self) -> typing.Iterable[tuple[str, EntryStore]]:
+    def items(self): # -> typing.Iterable[tuple[str, EntryStore]]:
         yield from self._keys.items()
 
-    def __contains__(self, item) -> bool:
+    def __contains__(self, item): # -> bool:
         if isinstance(item, CacheKey):
             item = item.raw_key
         return item in self._keys
 
-    def __getitem__(self, item) -> EntryStore:
+    def __getitem__(self, item): # -> EntryStore:
         if isinstance(item, CacheKey):
             item = item.raw_key
         return self._keys[item]
@@ -994,7 +995,7 @@ class SimpleCacheFile:
         self._stream_1_start_offset = SIMPLE_EOF_SIZE + self._header.key_length  # 20 = header length
         self._stream_1_length = stream_1_end_offset - self._stream_1_start_offset
 
-    def __enter__(self) -> "SimpleCacheFile":
+    def __enter__(self): # -> "SimpleCacheFile":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -1017,15 +1018,15 @@ class SimpleCacheFile:
         return self._stream_0_start_offset_negative
 
     @property
-    def path(self) -> pathlib.Path:
+    def path(self): # -> pathlib.Path:
         return self._path
 
     @property
-    def key(self) -> str:
+    def key(self): # -> str:
         return self._key
 
     @property
-    def key_hash(self) -> int:
+    def key_hash(self): # -> int:
         return self._header.key_hash
 
     def close(self):
@@ -1041,10 +1042,10 @@ class ChromiumSimpleFileCache(ChromiumCache):
         self._file_lookup = types.MappingProxyType(self._build_keys())
 
     @property
-    def cache_dir(self) -> pathlib.Path:
+    def cache_dir(self): # -> pathlib.Path:
         return self._cache_dir
 
-    def _build_keys(self) -> dict[str, list[pathlib.Path]]:
+    def _build_keys(self): # -> dict[str, list[pathlib.Path]]:
         # doing it this way is slow, but saves on having a million file handles open
         lookup: dict[str, list[pathlib.Path]] = {}
         for cache_file in self._cache_dir.iterdir():
@@ -1057,7 +1058,7 @@ class ChromiumSimpleFileCache(ChromiumCache):
 
         return lookup
 
-    def get_location_for_metadata(self, key: typing.Union[str, CacheKey]) -> list[CacheFileLocation]:
+    def get_location_for_metadata(self, key: typing.Union[str, CacheKey]): # -> list[CacheFileLocation]:
         result = []
         if isinstance(key, CacheKey):
             key = key.raw_key
@@ -1068,7 +1069,7 @@ class ChromiumSimpleFileCache(ChromiumCache):
             result.append(CacheFileLocation(file.name, offset))
         return result
 
-    def get_location_for_cachefile(self, key: typing.Union[str, CacheKey]) -> list[CacheFileLocation]:
+    def get_location_for_cachefile(self, key: typing.Union[str, CacheKey]): # -> list[CacheFileLocation]:
         result = []
         if isinstance(key, CacheKey):
             key = key.raw_key
@@ -1078,7 +1079,7 @@ class ChromiumSimpleFileCache(ChromiumCache):
             result.append(CacheFileLocation(file.name, offset))
         return result
 
-    def get_metadata(self, key: typing.Union[str, CacheKey]) -> list[typing.Optional[CachedMetadata]]:
+    def get_metadata(self, key: typing.Union[str, CacheKey]): # -> list[typing.Optional[CachedMetadata]]:
         result = []
         if isinstance(key, CacheKey):
             key = key.raw_key
@@ -1091,7 +1092,7 @@ class ChromiumSimpleFileCache(ChromiumCache):
                     result.append(None)
         return result
 
-    def get_cachefile(self, key: typing.Union[str, CacheKey]) -> list[bytes]:
+    def get_cachefile(self, key: typing.Union[str, CacheKey]): # -> list[bytes]:
         result = []
         if isinstance(key, CacheKey):
             key = key.raw_key
@@ -1100,7 +1101,7 @@ class ChromiumSimpleFileCache(ChromiumCache):
                 result.append(cf.get_stream_1())
         return result
 
-    def __enter__(self) -> "ChromiumCache":
+    def __enter__(self): # -> "ChromiumCache":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -1109,14 +1110,14 @@ class ChromiumSimpleFileCache(ChromiumCache):
     def close(self):
         pass
 
-    def keys(self) -> typing.Iterable[str]:
+    def keys(self): # -> typing.Iterable[str]:
         yield from self._file_lookup.keys()
 
-    def cache_keys(self) -> typing.Iterable[CacheKey]:
+    def cache_keys(self): # -> typing.Iterable[CacheKey]:
         for k in self._file_lookup.keys():
             yield CacheKey(k)
 
-    def get_file_for_key(self, key: typing.Union[str, CacheKey]) -> list[str]:
+    def get_file_for_key(self, key: typing.Union[str, CacheKey]): # -> list[str]:
         if isinstance(key, CacheKey):
             key = key.raw_key
         return [x.name for x in self._file_lookup[key]]

@@ -159,7 +159,7 @@ class ChromiumProfileFolder:
                 raise ValueError(f"Data under {cache_path} could not be identified as a known cache type")
             self._cache = cache_class(cache_path)
 
-    def iter_local_storage_hosts(self) -> col_abc.Iterable[str]:
+    def iter_local_storage_hosts(self) : # -> col_abc.Iterable[str]:
         """
         Iterates the hosts in this profile's local storage
         """
@@ -169,7 +169,7 @@ class ChromiumProfileFolder:
     def iter_local_storage(
             self, storage_key: typing.Optional[KeySearch]=None, script_key: typing.Optional[KeySearch]=None, *,
             include_deletions=False, raise_on_no_result=False
-    ) -> col_abc.Iterable[ccl_chromium_localstorage.LocalStorageRecord]:
+    ) : # -> col_abc.Iterable[ccl_chromium_localstorage.LocalStorageRecord]:
         """
         Iterates this profile's local storage records
 
@@ -205,7 +205,7 @@ class ChromiumProfileFolder:
     def iter_local_storage_with_batches(
             self, storage_key: typing.Optional[KeySearch]=None, script_key: typing.Optional[KeySearch]=None, *,
             include_deletions=False, raise_on_no_result=False
-    ) -> col_abc.Iterable[tuple[ccl_chromium_localstorage.LocalStorageRecord, ccl_chromium_localstorage.LocalStorageBatch]]:
+    ) : # -> col_abc.Iterable[tuple[ccl_chromium_localstorage.LocalStorageRecord, ccl_chromium_localstorage.LocalStorageBatch]]:
         """
         Iterates this profile's local storage records with associated batches where possible.
 
@@ -228,7 +228,7 @@ class ChromiumProfileFolder:
             batch = self._local_storage.find_batch(rec.leveldb_seq_number)
             yield rec, batch
 
-    def iter_session_storage_hosts(self) -> col_abc.Iterable[str]:
+    def iter_session_storage_hosts(self) : # -> col_abc.Iterable[str]:
         """
         Iterates this profile's session storage hosts
         """
@@ -238,7 +238,7 @@ class ChromiumProfileFolder:
     def iter_session_storage(
             self, host: typing.Optional[KeySearch]=None, key: typing.Optional[KeySearch]=None, *,
             include_deletions=False, raise_on_no_result=False
-    ) -> col_abc.Iterable[ccl_chromium_sessionstorage.SessionStoreValue]:
+    ) : # -> col_abc.Iterable[ccl_chromium_sessionstorage.SessionStoreValue]:
         """
         Iterates this profile's session storage records
 
@@ -278,7 +278,7 @@ class ChromiumProfileFolder:
             yield from self._session_storage.iter_records_for_session_storage_key(
                 host, key, include_deletions=include_deletions, raise_on_no_result=raise_on_no_result)
 
-    def iter_indexeddb_hosts(self) -> col_abc.Iterable[str]:
+    def iter_indexeddb_hosts(self) : # -> col_abc.Iterable[str]:
         """
         Iterates the hosts present in the Indexed DB folder. These values are what should be used to load the databases
         directly.
@@ -286,7 +286,7 @@ class ChromiumProfileFolder:
         self._lazy_populate_indexeddb_list()
         yield from self._indexeddb_databases.keys()
 
-    def get_indexeddb(self, host: str) -> ccl_chromium_indexeddb.WrappedIndexDB:
+    def get_indexeddb(self, host: str) : # -> ccl_chromium_indexeddb.WrappedIndexDB:
         """
         Returns the database with the host provided. Should be one of the values returned by
         :func:`~iter_indexeddb_hosts`. The database will be opened on-demand if it hasn't previously been opened.
@@ -378,7 +378,7 @@ class ChromiumProfileFolder:
         yield from self._history.iter_history_records(url, earliest=earliest, latest=latest)
 
     @staticmethod
-    def _decompress_cache_data(data, content_encoding) -> tuple[bool, bytes]:
+    def _decompress_cache_data(data, content_encoding): # -> tuple[bool, bytes]:
         if content_encoding.strip() == "gzip":
             return True, gzip.decompress(data)
         elif content_encoding.strip() == "br":
@@ -412,7 +412,7 @@ class ChromiumProfileFolder:
     def iterate_cache(
             self,
             url: typing.Optional[KeySearch]=None, *, decompress=True, omit_cached_data=False,
-            **kwargs: typing.Union[bool, KeySearch]) -> col_abc.Iterable[CacheResult]:
+            **kwargs: typing.Union[bool, KeySearch]): # -> col_abc.Iterable[CacheResult]:
         """
         Iterates cache records for this profile.
 
@@ -525,7 +525,7 @@ class ChromiumProfileFolder:
         for download in self._history.iter_downloads(download_url=download_url, tab_url=tab_url):
             yield download
 
-    def __enter__(self) -> "ChromiumProfileFolder":
+    def __enter__(self): # -> "ChromiumProfileFolder":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -537,29 +537,29 @@ class ChromiumProfileFolder:
         return self._path
 
     @property
-    def local_storage(self) -> ccl_chromium_localstorage.LocalStoreDb:
+    def local_storage(self) : # -> ccl_chromium_localstorage.LocalStoreDb:
         """The local storage object for this profile folder"""
         self._lazy_load_localstorage()
         return self._local_storage
 
     @property
-    def session_storage(self) -> ccl_chromium_sessionstorage.SessionStoreDb:
+    def session_storage(self) : # -> ccl_chromium_sessionstorage.SessionStoreDb:
         """The session storage object for this profile folder"""
         self._lazy_load_sessionstorage()
         return self._session_storage
 
     @property
-    def cache(self) -> ccl_chromium_cache.ChromiumCache:
+    def cache(self) : # -> ccl_chromium_cache.ChromiumCache:
         """The cache for this profile folder"""
         self._lazy_load_cache()
         return self._cache
 
     @property
-    def history(self) -> ccl_chromium_history.HistoryDatabase:
+    def history(self) : # -> ccl_chromium_history.HistoryDatabase:
         """The history for this profile folder"""
         self._lazy_load_history()
         return self._history
 
     @property
-    def browser_type(self) -> str:
+    def browser_type(self) : # -> str:
         return "Chromium"

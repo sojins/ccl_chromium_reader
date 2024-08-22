@@ -40,11 +40,11 @@ __contact__ = "Alex Caithness"
 EPOCH = datetime.datetime(1601, 1, 1)
 
 
-def parse_chromium_time(microseconds: int) -> datetime.datetime:
+def parse_chromium_time(microseconds: int): # -> datetime.datetime:
     return EPOCH + datetime.timedelta(microseconds=microseconds)
 
 
-def encode_chromium_time(datetime_value: datetime.datetime) -> int:
+def encode_chromium_time(datetime_value: datetime.datetime): # -> int:
     return math.floor((datetime_value - EPOCH).total_seconds() * 1000000)
 
 
@@ -105,18 +105,18 @@ class HistoryRecord:
     opener_visit_id: int
 
     @property
-    def record_location(self) -> str:
+    def record_location(self): # -> str:
         return f"SQLite Rowid: {self.rec_id}"
 
     @property
-    def has_parent(self) -> bool:
+    def has_parent(self): # -> bool:
         return self.from_visit_id != 0 or self.opener_visit_id != 0
 
     @property
-    def parent_visit_id(self) -> int:
+    def parent_visit_id(self): # -> int:
         return self.opener_visit_id or self.from_visit_id
 
-    def get_parent(self) -> typing.Optional["HistoryRecord"]:
+    def get_parent(self): # -> typing.Optional["HistoryRecord"]:
         """
         Get the parent visit for this record (based on the from_visit field in the database),
         or None if there isn't one.
@@ -124,7 +124,7 @@ class HistoryRecord:
 
         return self._owner.get_parent_of(self)
 
-    def get_children(self) -> col_abc.Iterable["HistoryRecord"]:
+    def get_children(self): # -> col_abc.Iterable["HistoryRecord"]:
         """
         Get the children visits for this record (based on their from_visit field in the database).
         """
@@ -211,7 +211,7 @@ class HistoryDatabase:
         self._conn.row_factory = sqlite3.Row
         self._conn.create_function("regexp", 2, lambda y, x: 1 if re.search(y, x) is not None else 0)
 
-    def _row_to_record(self, row: sqlite3.Row) -> HistoryRecord:
+    def _row_to_record(self, row: sqlite3.Row): # -> HistoryRecord:
         return HistoryRecord(
             self,
             row["id"],
@@ -224,7 +224,7 @@ class HistoryDatabase:
             row["opener_visit"]
         )
 
-    def get_parent_of(self, record: HistoryRecord) -> typing.Optional[HistoryRecord]:
+    def get_parent_of(self, record: HistoryRecord): # -> typing.Optional[HistoryRecord]:
         if record.from_visit_id == 0 and record.opener_visit_id == 0:
             return None
 
@@ -239,7 +239,7 @@ class HistoryDatabase:
         if row:
             return self._row_to_record(row)
 
-    def get_children_of(self, record: HistoryRecord) -> col_abc.Iterable[HistoryRecord]:
+    def get_children_of(self, record: HistoryRecord): # -> col_abc.Iterable[HistoryRecord]:
         query = HistoryDatabase._HISTORY_QUERY
         predicate = HistoryDatabase._WHERE_PARENT_ID_EQUALS_PREDICATE
         query += f" WHERE {predicate};"
@@ -250,7 +250,7 @@ class HistoryDatabase:
 
         cur.close()
 
-    def get_record_with_id(self, visit_id: int) -> typing.Optional[HistoryRecord]:
+    def get_record_with_id(self, visit_id: int): # -> typing.Optional[HistoryRecord]:
         query = HistoryDatabase._HISTORY_QUERY
         query += f" WHERE {HistoryDatabase._WHERE_VISIT_ID_EQUALS_PREDICATE};"
         cur = self._conn.cursor()
@@ -263,7 +263,7 @@ class HistoryDatabase:
     def iter_history_records(
             self, url: typing.Optional[KeySearch], *,
             earliest: typing.Optional[datetime.datetime]=None, latest: typing.Optional[datetime.datetime]=None
-    ) -> col_abc.Iterable[HistoryRecord]:
+    ): # -> col_abc.Iterable[HistoryRecord]:
 
         predicates = []
         parameters = []
@@ -309,7 +309,7 @@ class HistoryDatabase:
     def iter_downloads(
             self,
             download_url: typing.Optional[KeySearch]=None,
-            tab_url: typing.Optional[KeySearch]=None) -> col_abc.Iterable[Download]:
+            tab_url: typing.Optional[KeySearch]=None): # -> col_abc.Iterable[Download]:
         downloads_cur = self._conn.cursor()
         chain_cur = self._conn.cursor()
 

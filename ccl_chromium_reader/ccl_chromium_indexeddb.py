@@ -43,7 +43,7 @@ __contact__ = "Alex Caithness"
 #  (it should sit behind a switch for integers, fixed for most other stuff)
 
 
-def _read_le_varint(stream: typing.BinaryIO, *, is_google_32bit=False) -> typing.Optional[tuple[int, bytes]]:
+def _read_le_varint(stream: typing.BinaryIO, *, is_google_32bit=False): # -> typing.Optional[tuple[int, bytes]]:
     # this only outputs unsigned
     i = 0
     result = 0
@@ -63,7 +63,7 @@ def _read_le_varint(stream: typing.BinaryIO, *, is_google_32bit=False) -> typing
     return result, bytes(underlying_bytes)
 
 
-def read_le_varint(stream: typing.BinaryIO, *, is_google_32bit=False) -> typing.Optional[int]:
+def read_le_varint(stream: typing.BinaryIO, *, is_google_32bit=False) : # -> typing.Optional[int]:
     x = _read_le_varint(stream, is_google_32bit=is_google_32bit)
     if x is None:
         return None
@@ -71,17 +71,17 @@ def read_le_varint(stream: typing.BinaryIO, *, is_google_32bit=False) -> typing.
         return x[0]
 
 
-def _le_varint_from_bytes(data: bytes) -> typing.Optional[tuple[int, bytes]]:
+def _le_varint_from_bytes(data: bytes) : # -> typing.Optional[tuple[int, bytes]]:
     with io.BytesIO(data) as buff:
         return _read_le_varint(buff)
 
 
-def le_varint_from_bytes(data: bytes) -> typing.Optional[int]:
+def le_varint_from_bytes(data: bytes) : # -> typing.Optional[int]:
     with io.BytesIO(data) as buff:
         return read_le_varint(buff)
 
 
-def decode_truncated_int(data: bytes) -> int:
+def decode_truncated_int(data: bytes) : # -> int:
     # See: /content/browser/indexed_db/indexed_db_leveldb_coding.h EncodeInt()
     # "// Unlike EncodeVarInt, this is a 'dumb' implementation of a variable int
     # // encoder. It writes, little-endian', until there are no more '1' bits in the
@@ -253,11 +253,11 @@ class GlobalMetadata:
         self._db_ids_lookup = types.MappingProxyType({x.dbid_no: x for x in self._db_ids})
 
     @property
-    def db_ids(self) -> tuple[DatabaseId, ...]:
+    def db_ids(self) : # -> tuple[DatabaseId, ...]:
         return self._db_ids
 
     @property
-    def db_ids_lookup(self) -> dict[int: DatabaseId]:
+    def db_ids_lookup(self) : # -> dict[int: DatabaseId]:
         return self._db_ids_lookup
 
 
@@ -274,7 +274,7 @@ class DatabaseMetadata:
     def __init__(self, raw_meta: dict):
         self._metas = types.MappingProxyType(raw_meta)
 
-    def get_meta(self, db_id: int, meta_type: DatabaseMetadataType) -> typing.Optional[typing.Union[str, int]]:
+    def get_meta(self, db_id: int, meta_type: DatabaseMetadataType) : # -> typing.Optional[typing.Union[str, int]]:
         record = self._metas.get((db_id, meta_type))
         if not record:
             return None
@@ -347,12 +347,12 @@ class IndexedDbRecord:
     origin_file: os.PathLike
     external_value_path: typing.Optional[str] = None
 
-    def resolve_blob_index(self, blob_index: ccl_blink_value_deserializer.BlobIndex) -> IndexedDBExternalObject:
+    def resolve_blob_index(self, blob_index: ccl_blink_value_deserializer.BlobIndex) : # -> IndexedDBExternalObject:
         """Resolve a ccl_blink_value_deserializer.BlobIndex to its IndexedDBExternalObject
          to get metadata (file name, timestamps, etc)"""
         return self.owner.get_blob_info(self.db_id, self.obj_store_id, self.key.raw_key, blob_index.index_id)
 
-    def get_blob_stream(self, blob_index: ccl_blink_value_deserializer.BlobIndex) -> typing.BinaryIO:
+    def get_blob_stream(self, blob_index: ccl_blink_value_deserializer.BlobIndex) : # -> typing.BinaryIO:
         """Resolve a ccl_blink_value_deserializer.BlobIndex to a stream of its content"""
         return self.owner.get_blob(self.db_id, self.obj_store_id, self.key.raw_key, blob_index.index_id)
 
@@ -369,7 +369,7 @@ class IndexedDbRecord:
         return self.owner.get_object_store_metadata(self.db_id, self.obj_store_id, ObjectStoreMetadataType.StoreName)
 
     @property
-    def record_location(self) -> str:
+    def record_location(self) : # -> str:
         return f"File: {pathlib.Path(*pathlib.Path(self.origin_file).parts[-2:])} Seq: {self.ldb_seq_no}"
 
 
@@ -406,7 +406,7 @@ class IndexedDb:
 
     @staticmethod
     def make_prefix(
-            db_id: int, obj_store_id: int, index_id: int, end: typing.Optional[typing.Sequence[int]]=None) -> bytes:
+            db_id: int, obj_store_id: int, index_id: int, end: typing.Optional[typing.Sequence[int]]=None) : # -> bytes:
         if end is None:
             end = []
 
@@ -440,7 +440,7 @@ class IndexedDb:
         return bytes([byte_one, *yield_le_bytes(db_id), *yield_le_bytes(obj_store_id), *yield_le_bytes(index_id), *end])
 
     @staticmethod
-    def read_prefix(stream: typing.BinaryIO) -> tuple[int, int, int, int]:
+    def read_prefix(stream: typing.BinaryIO) : # -> tuple[int, int, int, int]:
         """
         :param stream: file-like to read the prefix from
         :return: a tuple of db_id, object_store_id, index_id, length of the prefix
@@ -474,7 +474,7 @@ class IndexedDb:
     def get_object_store_metadata(self, db_id: int, obj_store_id: int, meta_type: ObjectStoreMetadataType):
         return self.object_store_meta.get_meta(db_id, obj_store_id, meta_type)
 
-    def _get_raw_global_metadata(self, live_only=True) -> typing.Dict[bytes, ccl_leveldb.Record]:
+    def _get_raw_global_metadata(self, live_only=True) : # -> typing.Dict[bytes, ccl_leveldb.Record]:
         # Global metadata always has the prefix 0 0 0 0
         if not live_only:
             raise NotImplementedError("Deleted metadata not implemented yet")
@@ -628,7 +628,7 @@ class IndexedDb:
                                       record.state == ccl_leveldb.KeyState.Live,
                                       record.seq, record.origin_file, external_path)
 
-    def get_blob_info(self, db_id: int, store_id: int, raw_key: bytes, file_index: int) -> IndexedDBExternalObject:
+    def get_blob_info(self, db_id: int, store_id: int, raw_key: bytes, file_index: int) : # -> IndexedDBExternalObject:
         # if db_id > 0x7f or store_id > 0x7f:
         #     raise NotImplementedError("there could be this many dbs, but I don't support it yet")
 
@@ -656,7 +656,7 @@ class IndexedDb:
         else:
             raise KeyError((db_id, store_id, raw_key, file_index))
 
-    def get_blob(self, db_id: int, store_id: int, raw_key: bytes, file_index: int) -> typing.BinaryIO:
+    def get_blob(self, db_id: int, store_id: int, raw_key: bytes, file_index: int) : # -> typing.BinaryIO:
         # Some detail here: https://github.com/chromium/chromium/blob/master/content/browser/indexed_db/docs/README.md
         if self._blob_dir is None:
             raise ValueError("Can't resolve blob if blob dir is not set")
@@ -766,7 +766,7 @@ class IndexedDb:
     def database_path(self):
         return self._db.in_dir_path
 
-    def __enter__(self) -> "IndexedDb":
+    def __enter__(self) : # -> "IndexedDb":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -784,11 +784,11 @@ class WrappedObjectStore:
         self._obj_store_id = obj_store_id
 
     @property
-    def object_store_id(self) -> int:
+    def object_store_id(self) : # -> int:
         return self._obj_store_id
 
     @property
-    def name(self) -> str:
+    def name(self) : # -> str:
         return self._raw_db.get_object_store_metadata(
             self._dbid_no, self._obj_store_id, ObjectStoreMetadataType.StoreName)
 
@@ -796,7 +796,7 @@ class WrappedObjectStore:
     def _log_error(key: IdbKey, data: bytes):
         sys.stderr.write(f"ERROR decoding key: {key}\n")
 
-    def get_blob(self, raw_key: bytes, file_index: int) -> typing.BinaryIO:
+    def get_blob(self, raw_key: bytes, file_index: int) : # -> typing.BinaryIO:
         """
         Deprecated: use IndexedDbRecord.get_blob_stream
 
@@ -850,28 +850,28 @@ class WrappedDatabase:
                 self._raw_db, self.db_number, i) for i in range(1, self.object_store_count + 1))
 
     @property
-    def name(self) -> str:
+    def name(self) : # -> str:
         """
         :return: the name of this WrappedDatabase
         """
         return self._dbid.name
 
     @property
-    def origin(self) -> str:
+    def origin(self) : # -> str:
         """
         :return: the origin (host name) for this WrappedDatabase
         """
         return self._dbid.origin
 
     @property
-    def db_number(self) -> int:
+    def db_number(self) : # -> int:
         """
         :return: the numerical ID assigned to this WrappedDatabase
         """
         return self._dbid.dbid_no
 
     @property
-    def object_store_count(self) -> int:
+    def object_store_count(self) : # -> int:
         """
         :return: the "MaximumObjectStoreId" value fot this database; NB this may not be the *actual* number of object
             stores which can be read - it is possible that some object stores may be deleted. Use len() to check the
@@ -883,13 +883,13 @@ class WrappedDatabase:
             DatabaseMetadataType.MaximumObjectStoreId) or 0  # returns None if there are none.
 
     @property
-    def object_store_names(self) -> typing.Iterable[str]:
+    def object_store_names(self) : # -> typing.Iterable[str]:
         """
         :return: yields the names of the object stores in this WrappedDatabase
         """
         yield from self._obj_store_names
 
-    def get_object_store_by_id(self, obj_store_id: int) -> WrappedObjectStore:
+    def get_object_store_by_id(self, obj_store_id: int) : # -> WrappedObjectStore:
         """
         :param obj_store_id: the numerical ID for an object store in this WrappedDatabase
         :return: the WrappedObjectStore with the ID provided
@@ -899,7 +899,7 @@ class WrappedDatabase:
         raise ValueError("obj_store_id must be greater than zero and less or equal to object_store_count "
                          "NB object stores are enumerated from 1 - there is no store with id 0")
 
-    def get_object_store_by_name(self, name: str) -> WrappedObjectStore:
+    def get_object_store_by_name(self, name: str) : # -> WrappedObjectStore:
         """
         :param name: the name of an object store in this WrappedDatabase
         :return: the WrappedObjectStore with the name provided
@@ -908,26 +908,26 @@ class WrappedDatabase:
             return self.get_object_store_by_id(self._obj_store_names.index(name) + 1)
         raise KeyError(f"{name} is not an object store in this database")
 
-    def __iter__(self) -> typing.Iterable[WrappedObjectStore]:
+    def __iter__(self) : # -> typing.Iterable[WrappedObjectStore]:
         """
         :return: yields the object stores in this WrappedDatabase
         """
         yield from self._obj_stores
 
-    def __len__(self) -> int:
+    def __len__(self) : # -> int:
         """
         :return: the number of object stores accessible in this WrappedDatabase
         """
         return len(self._obj_stores)
 
-    def __contains__(self, item: str) -> bool:
+    def __contains__(self, item: str) : # -> bool:
         """
         :param item: the name of an object store in this WrappedDatabase
         :return: True if the name provided matches one of the Object stores in this WrappedDatabase
         """
         return item in self._obj_store_names
 
-    def __getitem__(self, item: typing.Union[int, str]) -> WrappedObjectStore:
+    def __getitem__(self, item: typing.Union[int, str]) : # -> WrappedObjectStore:
         """
         :param item: either the numerical ID of an object store (as an int) or the name of an object store in this
             WrappedDatabase
@@ -964,21 +964,21 @@ class WrappedIndexDB:
         self._raw_db.close()
 
     @property
-    def database_count(self) -> int:
+    def database_count(self) : # -> int:
         """
         :return: The number of databases in this IndexedDB
         """
         return len(self._db_number_lookup)
 
     @property
-    def database_ids(self) -> typing.Iterable[DatabaseId]:
+    def database_ids(self) : # -> typing.Iterable[DatabaseId]:
         """
         :return: yields DatabaseId objects which define the databases in this IndexedDb
         """
         yield from self._raw_db.global_metadata.db_ids
 
     @property
-    def has_multiple_origins(self) -> bool:
+    def has_multiple_origins(self) : # -> bool:
         return self._multiple_origins
 
     def __len__(self):
@@ -987,7 +987,8 @@ class WrappedIndexDB:
         """
         len(self._db_number_lookup)
 
-    def __contains__(self, item: typing.Union[str, int, tuple[str, str]]):
+    # def __contains__(self, item: typing.Union[str, int, tuple[str, str]]):
+    def  __contains__(self, item: typing.Union[str, int]):
         """
         :param item: either a database id number, the name of a database (as a string), or (if the database has multiple
             origins), a tuple of database name and origin
@@ -1011,7 +1012,7 @@ class WrappedIndexDB:
         else:
             raise TypeError("keys must be provided as a tuple of (name, origin) or a str (if only single origin) or int")
 
-    def __getitem__(self, item: typing.Union[DatabaseId, int, str, typing.Tuple[str, str]]) -> WrappedDatabase:
+    def __getitem__(self, item: typing.Union[DatabaseId, int, str, typing.Tuple[str, str]]) : # -> WrappedDatabase:
         """
         :param item: either a DatabaseID object database id number, the name of a database (as a string), or
         (if the database has multiple origins), a tuple of database name and origin
@@ -1053,7 +1054,7 @@ class WrappedIndexDB:
     def __repr__(self):
         return f"<WrappedIndexDB: {self._raw_db.database_path}>"
 
-    def __enter__(self) -> "WrappedIndexDB":
+    def __enter__(self) : # -> "WrappedIndexDB":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

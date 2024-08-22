@@ -17,7 +17,8 @@ class Download:  # TODO: all of the parameters
     record_id: int
     guid: str
     hash: str
-    url_chain: tuple[str, ...]
+    # url_chain: tuple[str, ...]
+    url_chain: tuple
     tab_url: str
     tab_referrer_url: str
     target_path: str

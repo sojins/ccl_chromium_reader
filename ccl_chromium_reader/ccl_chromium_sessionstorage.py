@@ -53,7 +53,7 @@ class SessionStoreValue:
     is_deleted: bool = False
 
     @property
-    def record_location(self) -> str:
+    def record_location(self): # -> str:
         return f"Leveldb Seq: {self.leveldb_sequence_number}"
 
 
@@ -169,7 +169,7 @@ class SessionStoreDb:
                     self._host_lookup[host][ss_key].append(
                         SessionStoreValue(host, ss_key, value, rec.seq, rec.state == ccl_leveldb.KeyState.Deleted))
 
-    def __contains__(self, item: typing.Union[str, typing.Tuple[str, str]]) -> bool:
+    def __contains__(self, item: typing.Union[str, typing.Tuple[str, str]]): # -> bool:
         """
         :param item: either the host as a str or a tuple of the host and a key (both str)
         :return: if item is a str, returns true if that host is present, if item is a tuple of (str, str), returns True
@@ -184,13 +184,13 @@ class SessionStoreDb:
         else:
             raise TypeError("item must be a string or a tuple of (str, str)")
 
-    def iter_hosts(self) -> typing.Iterable[str]:
+    def iter_hosts(self): # -> typing.Iterable[str]:
         """
         :return: yields the hosts present in this SessionStorage
         """
         yield from self._host_lookup.keys()
 
-    def get_all_for_host(self, host: str) -> dict[str, tuple[SessionStoreValue, ...]]:
+    def get_all_for_host(self, host: str): # -> dict[str, tuple[SessionStoreValue, ...]]:
         """
         DEPRECATED
         :param host: the host (domain name) for the session storage
@@ -204,7 +204,7 @@ class SessionStoreDb:
             result_raw[ss_key] = tuple(result_raw[ss_key])
         return result_raw
 
-    def _search_host(self, host: KeySearch) -> list[str]:
+    def _search_host(self, host: KeySearch): # -> list[str]:
         if isinstance(host, str):
             return [host]
         elif isinstance(host, re.Pattern):
@@ -218,7 +218,7 @@ class SessionStoreDb:
 
     def iter_records_for_host(
             self, host: KeySearch, *,
-            include_deletions=False, raise_on_no_result=True) -> col_abc.Iterable[SessionStoreValue]:
+            include_deletions=False, raise_on_no_result=True): # -> col_abc.Iterable[SessionStoreValue]:
         """
         :param host: storage key (host) for the records. This can be one of: a single string;
         a collection of strings; a regex pattern; a function that takes a string (each host) and returns a bool.
@@ -257,7 +257,7 @@ class SessionStoreDb:
         if include_orphans:
             yield from (x[1] for x in self.iter_orphans())
 
-    def get_session_storage_key(self, host: str, key: str) -> tuple[SessionStoreValue, ...]:
+    def get_session_storage_key(self, host: str, key: str): # -> tuple[SessionStoreValue, ...]:
         """
         DEPRECATED
         :param host: the host (domain name) for the session storage
@@ -271,7 +271,7 @@ class SessionStoreDb:
 
     def iter_records_for_session_storage_key(
             self, host: KeySearch, key: KeySearch, *,
-            include_deletions=False, raise_on_no_result=True) -> col_abc.Iterable[SessionStoreValue]:
+            include_deletions=False, raise_on_no_result=True): # -> col_abc.Iterable[SessionStoreValue]:
         """
         :param host: storage key (host) for the records. This can be one of: a single string;
         a collection of strings; a regex pattern; a function that takes a string (each host) and returns a bool.
@@ -319,7 +319,7 @@ class SessionStoreDb:
             if not yielded and raise_on_no_result:
                 raise KeyError((host, key))
 
-    def iter_orphans(self) -> typing.Iterable[tuple[str, SessionStoreValue]]:
+    def iter_orphans(self): # -> typing.Iterable[tuple[str, SessionStoreValue]]:
         """
         Returns records which have been orphaned from their host (domain name) where it cannot be recovered. The keys
             may be named uniquely enough that the host may be inferred.
@@ -327,8 +327,8 @@ class SessionStoreDb:
         """
         yield from self._orphans
 
-    def __getitem__(self, item: typing.Union[str, typing.Tuple[str, str]]) -> typing.Union[
-            dict[str, tuple[SessionStoreValue, ...]], tuple[SessionStoreValue, ...]]:
+    def __getitem__(self, item: typing.Union[str, typing.Tuple[str, str]]): # -> typing.Union[
+            # dict[str, tuple[SessionStoreValue, ...]], tuple[SessionStoreValue, ...]]:
         if item not in self:
             raise KeyError(item)
 
@@ -339,7 +339,7 @@ class SessionStoreDb:
         else:
             raise TypeError("item must be a string or a tuple of (str, str)")
 
-    def __iter__(self) -> typing.Iterable[str]:
+    def __iter__(self): # -> typing.Iterable[str]:
         """
         iterates the hosts present
         """
@@ -348,7 +348,7 @@ class SessionStoreDb:
     def close(self):
         self._ldb.close()
 
-    def __enter__(self) -> "SessionStoreDb":
+    def __enter__(self): # -> "SessionStoreDb":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

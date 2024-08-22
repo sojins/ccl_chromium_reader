@@ -53,11 +53,11 @@ class ProtoObject:
     __repr__ = __str__
 
     @property
-    def friendly_tag(self) -> int:
+    def friendly_tag(self): # -> int:
         """:return the "real" tag (i.e. the one that would be seen inside the .proto schema)"""
         return self.tag >> 3
 
-    def get_items_by_tag(self, tag_id: int) -> list[typing.Any]:
+    def get_items_by_tag(self, tag_id: int): # -> list[typing.Any]:
         """
         :param tag_id: the tag id for the child items
         :return: list of child items with this tag number
@@ -68,7 +68,7 @@ class ProtoObject:
             raise TypeError("Expected type: int; actual type: {0}".format(type(tag_id)))
         return [x for x in self.value if x.tag == tag_id]
 
-    def get_items_by_name(self, name: str) -> list[typing.Any]:
+    def get_items_by_name(self, name: str): # -> list[typing.Any]:
         """
         :param name: the field name for the child items
         :return: list of child items with this name
@@ -95,7 +95,7 @@ class ProtoObject:
         else:
             raise ValueError("More than one value with this key")
 
-    def __getitem__(self, key: typing.Union[str, int]) -> list[typing.Any]:
+    def __getitem__(self, key: typing.Union[str, int]): # -> list[typing.Any]:
         if isinstance(key, str):
             return self.get_items_by_name(key)
         elif isinstance(key, int):
@@ -103,7 +103,7 @@ class ProtoObject:
         else:
             raise TypeError("Key should be int or str; actual type: {0}".format(type(key)))
 
-    def __len__(self) -> int:
+    def __len__(self): # -> int:
         return self.value.__len__()
 
     def __iter__(self):
@@ -122,7 +122,7 @@ class ProtoDecoder:
         return self.func(arg)
 
 
-def _read_le_varint(stream: typing.BinaryIO, is_32bit=False) -> typing.Optional[typing.Tuple[int, bytes]]:
+def _read_le_varint(stream: typing.BinaryIO, is_32bit=False): # -> typing.Optional[typing.Tuple[int, bytes]]:
     # this only outputs unsigned
     limit = 5 if is_32bit else 10
     i = 0
@@ -141,7 +141,7 @@ def _read_le_varint(stream: typing.BinaryIO, is_32bit=False) -> typing.Optional[
     return result, bytes(underlying_bytes)
 
 
-def read_le_varint(stream: typing.BinaryIO, is_32bit=False) -> typing.Optional[int]:
+def read_le_varint(stream: typing.BinaryIO, is_32bit=False): # -> typing.Optional[int]:
     x = _read_le_varint(stream, is_32bit)
     if x is None:
         return None
@@ -149,14 +149,15 @@ def read_le_varint(stream: typing.BinaryIO, is_32bit=False) -> typing.Optional[i
         return x[0]
 
 
-def read_le_varint32(stream: typing.BinaryIO) -> typing.Optional[int]:
+def read_le_varint32(stream: typing.BinaryIO): # -> typing.Optional[int]:
     return read_le_varint(stream, True)
 
 
 def read_tag(
         stream: typing.BinaryIO,
-        tag_mappings: dict[int, typing.Callable[[typing.BinaryIO], typing.Any]],
-        log_out=sys.stderr, use_friendly_tag=False) -> typing.Optional[ProtoObject]:
+        # tag_mappings: dict[int, typing.Callable[[typing.BinaryIO], typing.Any]],
+        tag_mappings: dict,
+        log_out=sys.stderr, use_friendly_tag=False): # -> typing.Optional[ProtoObject]:
     tag_id = read_le_varint(stream)
     if tag_id is None: 
         return None
@@ -175,8 +176,9 @@ def read_tag(
 
 def read_protobuff(
         stream: typing.BinaryIO,
-        tag_mappings: dict [int, typing.Callable[[typing.BinaryIO], typing.Any]],
-        use_friendly_tag=False) -> list[ProtoObject]:
+        # tag_mappings: dict [int, typing.Callable[[typing.BinaryIO], typing.Any]],
+        tag_mappings: dict,
+        use_friendly_tag=False): # -> list[ProtoObject]:
     result = []
     while True:
         tag = read_tag(stream, tag_mappings, use_friendly_tag=use_friendly_tag)
@@ -187,37 +189,37 @@ def read_protobuff(
     return result
 
 
-def read_blob(stream: typing.BinaryIO) -> bytes:
+def read_blob(stream: typing.BinaryIO): # -> bytes:
     blob_length = read_le_varint(stream)
     blob = stream.read(blob_length)
     return blob
 
 
-def read_string(stream: typing.BinaryIO) -> str:
+def read_string(stream: typing.BinaryIO): # -> str:
     raw_string = read_blob(stream)
     string = raw_string.decode("utf-8")
     return string
 
 
-def read_double(stream: typing.BinaryIO) -> float:
+def read_double(stream: typing.BinaryIO): # -> float:
     return struct.unpack("<d", stream.read(8))[0]
 
 
-def read_long(stream: typing.BinaryIO) -> int:
+def read_long(stream: typing.BinaryIO): # -> int:
     return struct.unpack("<q", stream.read(8))[0]
 
 
-def read_int(stream: typing.BinaryIO) -> int:
+def read_int(stream: typing.BinaryIO): # -> int:
     return struct.unpack("<i", stream.read(4))[0]
 
 
-def read_embedded_protobuf(stream: typing.BinaryIO, mappings, use_friendly_tag=False) -> list[ProtoObject]:
+def read_embedded_protobuf(stream: typing.BinaryIO, mappings, use_friendly_tag=False): # -> list[ProtoObject]:
     blob_blob = read_blob(stream)
     blob_stream = io.BytesIO(blob_blob)
     return read_protobuff(blob_stream, mappings, use_friendly_tag)
 
 
-def read_fixed_blob(stream: typing.BinaryIO, length: int) -> bytes:
+def read_fixed_blob(stream: typing.BinaryIO, length: int): # -> bytes:
     data = stream.read(length)
     if len(data) != length:
         raise ValueError("Couldn't read enough data")

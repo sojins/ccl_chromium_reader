@@ -5,3 +5,8 @@
 env/
 dist
 *.egg-info
+/.venv
+/.venv310
+/ccl_chromium_reader/__pycache__
+/ccl_chromium_reader/serialization_formats/__pycache__
+fdleveldb_reader.py
