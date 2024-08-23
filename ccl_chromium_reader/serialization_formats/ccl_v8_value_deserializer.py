@@ -250,9 +250,9 @@ class ArrayBufferViewTag:
         tag_kDataView: "c"
     })
 
-
+# [FINALDATA] No use 'Undefined'
 class Deserializer:
-    Undefined = _Undefined()
+    Undefined = None #_Undefined()
 
     __ODDBALLS = {
         Constants.token_kUndefined: Undefined,
